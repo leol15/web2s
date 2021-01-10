@@ -3,8 +3,15 @@
   <head>
     <meta charset="utf-8">
     <title>Invert PDF color</title>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <!-- somehow upload a pdf to '.' folder -->
+    <h1>Upload a pdf and see it in night!</h1>
+    <form action="process_pdf.php" method="post" enctype="multipart/form-data">
+      Select a pdf to upload:
+      <input type="file" name="fileToUpload" id="fileToUpload">
+      <input type="submit" value="Upload Image" name="submit">
+    </form>
   </body>
 </html>
