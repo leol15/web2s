@@ -1,12 +1,12 @@
 <?php
   # php code to invert a pdf with bash cmds
-  if(isset($_FILES['file'])){
+  if(isset($_FILES['fileToUpload'])){
      $errors= array();
-     $file_name = $_FILES['file']['name'];
-     $file_size = $_FILES['file']['size'];
-     $file_tmp = $_FILES['file']['tmp_name'];
-     $file_type = $_FILES['file']['type'];
-     $file_ext=strtolower(end(explode('.',$_FILES['file']['name'])));
+     $file_name = $_FILES['fileToUpload']['name'];
+     $file_size = $_FILES['fileToUpload']['size'];
+     $file_tmp = $_FILES['fileToUpload']['tmp_name'];
+     $file_type = $_FILES['fileToUpload']['type'];
+     $file_ext=strtolower(end(explode('.',$_FILES['fileToUpload']['name'])));
 
      $extensions= array("pdf");
 
@@ -18,7 +18,11 @@
         move_uploaded_file($file_tmp,"./processing/".$file_name);
         echo "Success";
      }else{
+     	echo "Failed";
         print_r($errors);
      }
+  } else {
+	print_r($_FILES);
+  	echo "this is not an upload?";
   }
 ?>
