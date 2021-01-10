@@ -11,7 +11,7 @@
      $extensions= array("pdf");
 
      if(in_array($file_ext,$extensions)=== false){
-        $errors[]="extension not allowed, please choose a JPEG or PNG file.";
+        $errors[]="extension not allowed, please choose a PDF file.";
      }
 
      if(empty($errors)==true) {
@@ -25,6 +25,8 @@
 				"convert out-*.png -channel RGB -negate out-neg.png && ".
 				"convert out-neg*.png neg-".$file_name ." && ".
 				"mv neg-".$file_name." ../../processed/ && cd ../.. && rm -rf ".$path);
+		# remove processing also if faileds
+		passthru("rm -rf ./processing/*");
         echo "Success! <a href='./processed/neg-".$file_name."'>here</a>";
      }else{
      	echo "Failed";
