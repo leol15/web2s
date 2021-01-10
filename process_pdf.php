@@ -15,8 +15,17 @@
      }
 
      if(empty($errors)==true) {
-        move_uploaded_file($file_tmp,"./processing/".$file_name);
-        echo "Success";
+     	# make a dir
+     	$path = "./processing/".$file_name;
+     	mkdir($path, 0777,  $recursive = true);
+        move_uploaded_file($file_tmp,$path."/".$file_name);
+        # now process the pdf
+        passthru("cd ".$path." && ".
+        		"pdftoppm -rx 200 -ry 200 ".$file_name." out -png && ".
+				"convert out-*.png -channel RGB -negate out-neg.png && ".
+				"convert out-neg*.png neg-".$file_name ." && ".
+				"mv neg-".$file_name." ../../processed/ && cd ../.. && rm -rf ".$path);
+        echo "Success! <a href='./processed/neg-".$file_name."'>here</a>";
      }else{
      	echo "Failed";
         print_r($errors);
