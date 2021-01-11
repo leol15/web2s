@@ -7,14 +7,73 @@
   </head>
   <body>
     <!-- somehow upload a pdf to '.' folder -->
-    <h1>Upload a pdf and see it in night mode!</h1>
-    <img id="pdf">
+    <h1>Upload a pdf and get it in night mode!</h1>
     <div id="div1">
       <form action="process_pdf.php" method="post" enctype="multipart/form-data">
         Select a pdf to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload">
-        <input type="submit" value="Upload Image" name="submit">
+        <input id="file-input" type="file" name="fileToUpload" id="fileToUpload">
+        <input type="submit" value="Upload File"> 
       </form>
     </div>
+
+    <script>
+		let input_el = document.querySelector("#file-input")
+    	let form = document.querySelector("form")
+    	form.onsubmit = (e) => {
+    		e.preventDefault()
+    		// console.log(input_el.files[0]) 
+    		// now send it
+    		console.log("posting")
+    		// for php
+    		var data = new FormData()
+    		data.append('fileToUpload', input_el.files[0])
+    		data.append('user', 'web')
+    		fetch(form.action, {
+    			method: "POST",
+    			body: data
+    		})
+    			.then(processChunkedResponse)
+				.then(onChunkedResponseComplete)
+				.catch(onChunkedResponseError)
+		}
+
+		function onChunkedResponseComplete(result) {
+			console.log('all done!', result)
+		}
+
+		function onChunkedResponseError(err) {
+			console.error(err)
+		}
+
+		
+		function processChunkedResponse(response) {
+		  var text = '';
+		  var reader = response.body.getReader()
+		  var decoder = new TextDecoder();
+		  
+		  return readChunk();
+		
+		  function readChunk() {
+		    return reader.read().then(appendChunks);
+		  }
+		
+		  function appendChunks(result) {
+		    var chunk = decoder.decode(result.value || new Uint8Array, {stream: !result.done});
+		    console.log('got chunk of', chunk.length, 'bytes')
+		    // just append to body
+		    document.body.innerHTML += "<p>" + chunk + "</p>"
+		    // text += chunk; 
+		    console.log('text so far is', text.length, 'bytes\n');
+		    if (result.done) {
+		      console.log('returning')
+		      return text;
+		    } else {
+		      console.log('recursing')
+		      return readChunk();
+		    }
+		  }
+		}
+		
+    </script>
   </body>
 </html>

@@ -1,5 +1,7 @@
 <?php
   # php code to invert a pdf with bash cmds
+ // header( 'Content-type: text/html; charset=utf-8' ); // said to resolve flush()
+  header('Content-Encoding: none');
   if(isset($_FILES['fileToUpload'])){
      $errors= array();
      $file_name = $_FILES['fileToUpload']['name'];
@@ -10,24 +12,36 @@
 
      $extensions= array("pdf");
 
-     if(in_array($file_ext,$extensions)=== false){
+     if(in_array($file_ext,$extensions) === false){
         $errors[]="extension not allowed, please choose a PDF file.";
      }
-
+     
+     //ob_end_flush(); // to get php's internal buffers out into the operating system
+     //flush();
      if(empty($errors)==true) {
      	# make a dir
-     	$path = "./processing/".$file_name;
+		echo "<p>file received</p>";
+     	$path = "./pdf_processing/".$file_name;
      	mkdir($path, 0777,  $recursive = true);
         move_uploaded_file($file_tmp,$path."/".$file_name);
         # now process the pdf
-        passthru("cd ".$path." && ".
-        		"pdftoppm -rx 200 -ry 200 ".$file_name." out -png && ".
-				"convert out-*.png -channel RGB -negate out-neg.png && ".
-				"convert out-neg*.png neg-".$file_name ." && ".
-				"mv neg-".$file_name." ../../processed/ && cd ../.. && rm -rf ".$path);
+        echo "<p>converting to pngs</p>";
+        passthru("cd ".$path." && pdftoppm -rx 200 -ry 200 ".$file_name." tmp-1 -png");
+        echo "<p>inverting colors</p>";
+		passthru("cd ".$path." && ls -1 tmp-1*.png | xargs ".
+				"-P10 -i convert {} -channel RGB -negate tmp-2-{}");
+		usleep(500000); // 0.5 sec
+		echo "<p>assembling to pdf</p>";
+		passthru("cd ".$path." && convert tmp-2-*.png neg-".$file_name);
+		usleep(500000); // 0.5 sec
+		echo "<p>moving file</p>";
+		passthru("mv ".$path."/neg-".$file_name." pdf_processed/ && rm -rf ".$path);
+		usleep(500000); // 0.5 sec
+		echo "<p>removing build specs</p>";
 		# remove processing also if faileds
 		passthru("rm -rf ./processing/*");
-        echo "Success! <a href='./processed/neg-".$file_name."'>here</a>";
+		usleep(500000); // 0.5 sec
+        echo "<p>Success! <a href='./pdf_processed/neg-".$file_name."'>download here</a></p>";
      }else{
      	echo "Failed";
         print_r($errors);
