@@ -12,6 +12,10 @@
 
      $extensions= array("pdf");
 
+     # escape shell
+     $file_name = escapeshellcmd($file_name);
+     $file_name = str_replace(" ", "_", $file_name);
+
      if(in_array($file_ext,$extensions) === false){
         $errors[]="extension not allowed, please choose a PDF file.";
      }
